@@ -11,6 +11,8 @@ import {
 } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import PropTypes from "prop-types";
+import shortid from  "shortid";
+
 
 const styles = theme => ({
   root: {
@@ -50,7 +52,6 @@ class App extends Component {
         }
       ],
       renderComponents: [],
-      counter: 1
     };
   }
 
@@ -65,7 +66,7 @@ class App extends Component {
   };
 
   componentDidMount() {
-    const { renderComponents, svgWidth } = this.state;
+    const { svgWidth } = this.state;
     let startPoint = this.randomStartPoint(0, svgWidth);
     // let allPoints = [[startPoint.x, startPoint.y]];
     this.setState(state => ({
@@ -73,36 +74,49 @@ class App extends Component {
       allPoints: [...state.allPoints, startPoint]
     }));
 
-    this.timer = setInterval(this.ChaosGame, 1);
+    this.timer = setInterval(this.ChaosGame, 0.00001);
   }
 
   ChaosGame = () => {
+    // let tempPoint = []
     // for (let i = 0; i < 30000; i++) {
-    const { startPoint } = this.state;
-    const randomPoint = this.state.allPoints[this.getRandomPoint()];
-    // const dist = Math.sqrt((startPoint.x - randomPoint[0]) ** 2 + (startPoint.y - randomPoint[1])** 2);
-    const middlePoint = {
-      x: (startPoint.x + randomPoint.x) / 2.0,
-      y: (startPoint.y + randomPoint.y) / 2.0
-    };
-    // allPoints = [...allPoints, middlePoint];
-
+    // for(let i = 0; i < 50; i++){
+      const { startPoint } = this.state;
+      const randomPoint = this.state.allPoints[this.getRandomPoint()];
+      // const dist = Math.sqrt((startPoint.x - randomPoint[0]) ** 2 + (startPoint.y - randomPoint[1])** 2);
+      const middlePoint = {
+        x: (startPoint.x + randomPoint.x) / 2.0,
+        y: (startPoint.y + randomPoint.y) / 2.0
+      };
+      // tempPoint = [...tempPoint, <circle
+      //   key={shortid.generate()}
+      //   cx={middlePoint.x}
+      //   cy={middlePoint.y}
+      //   r={1}
+      //   // width={5}
+      //   // height={5}
+      //   stroke="black"
+      // />]
+      // }
+      this.setState(state => ({
+        startPoint: middlePoint,
+        renderComponents: [
+          ...state.renderComponents,
+          <circle
+            key={shortid.generate()}
+            cx={middlePoint.x}
+            cy={middlePoint.y}
+            r={1}
+            // width={5}
+            // height={5}
+            stroke="black"
+          />
+        ]
+      }));
+      if (this.state.counter > 50000){
+        clearInterval(this.timer)
+      }
     // }
-    this.setState(state => ({
-      startPoint: middlePoint,
-      counter: state.counter + 1,
-      renderComponents: [
-        ...state.renderComponents,
-        <rect
-          key={state.counter}
-          x={middlePoint.x}
-          y={middlePoint.y}
-          width={1}
-          height={1}
-          stroke="blue"
-        />
-      ]
-    }));
     // startPoint = middlePoint;
     // console.log(this.state.renderComponents);
   };
