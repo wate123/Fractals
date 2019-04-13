@@ -7,7 +7,12 @@ import {
   FormGroup,
   FormControl,
   FormLabel,
-  TextField
+  TextField,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormHelperText,
+  Input
 } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import PropTypes from "prop-types";
@@ -33,25 +38,48 @@ class App extends Component {
       svgHeight: 800,
       numSartPoint: 3,
       probability: 0,
+      shapePoints:{
+        3:[
+          {
+            x: 400,
+            y: 0
+          },
+          {
+            x: 0,
+            y: 800
+          },
+          {
+            x: 800,
+            y: 800
+          }
+        ],
+        4:[
+          {
+            x: 0,
+            y: 0
+          },
+          {
+            x: 0,
+            y: 800
+          },
+          {
+            x: 800,
+            y: 0
+          },
+          {
+            x: 800,
+            y: 800
+          }
+        ],
+      },
       startPoint: {
         x: 0,
         y: 0
       },
-      allPoints: [
-        {
-          x: 400,
-          y: 0
-        },
-        {
-          x: 0,
-          y: 800
-        },
-        {
-          x: 800,
-          y: 800
-        }
-      ],
+      allPoints: [],
+      colorMap: ["red","blue","black", "green"],
       renderComponents: [],
+      currentVertex: 0,
     };
   }
 
@@ -66,40 +94,45 @@ class App extends Component {
   };
 
   componentDidMount() {
-    const { svgWidth } = this.state;
+    const { svgWidth, shapePoints, numSartPoint } = this.state; 
     let startPoint = this.randomStartPoint(0, svgWidth);
     // let allPoints = [[startPoint.x, startPoint.y]];
     this.setState(state => ({
       startPoint: startPoint,
-      allPoints: [...state.allPoints, startPoint]
-    }));
+      allPoints: [
+        ...state.allPoints,
+        ...shapePoints[numSartPoint], 
+        startPoint
+      ]
+    }), () => {
+      // console.log(this.state.numSartPoint)
+      this.timer = setInterval(this.ChaosGame, 0.00001)
 
-    this.timer = setInterval(this.ChaosGame, 0.00001);
+    });
+    // this.timer = setInterval(this.ChaosGame, 0.00001)
+    
+  }
+  CheckConsecutive = (num) =>{
+
   }
 
   ChaosGame = () => {
     // let tempPoint = []
     // for (let i = 0; i < 30000; i++) {
     // for(let i = 0; i < 50; i++){
-      const { startPoint } = this.state;
-      const randomPoint = this.state.allPoints[this.getRandomPoint()];
-      // const dist = Math.sqrt((startPoint.x - randomPoint[0]) ** 2 + (startPoint.y - randomPoint[1])** 2);
+      const { startPoint, currentVertex, colorMap } = this.state;
+      let nextVertex = this.getRandomPoint();
+      if (nextVertex === currentVertex){
+        return
+      }
+      const randomPoint = this.state.allPoints[nextVertex];
       const middlePoint = {
         x: (startPoint.x + randomPoint.x) / 2.0,
         y: (startPoint.y + randomPoint.y) / 2.0
       };
-      // tempPoint = [...tempPoint, <circle
-      //   key={shortid.generate()}
-      //   cx={middlePoint.x}
-      //   cy={middlePoint.y}
-      //   r={1}
-      //   // width={5}
-      //   // height={5}
-      //   stroke="black"
-      // />]
-      // }
       this.setState(state => ({
         startPoint: middlePoint,
+        currentVertex: nextVertex,
         renderComponents: [
           ...state.renderComponents,
           <circle
@@ -109,24 +142,45 @@ class App extends Component {
             r={1}
             // width={5}
             // height={5}
-            stroke="black"
+            stroke={colorMap[nextVertex]}
           />
         ]
       }));
       if (this.state.counter > 50000){
         clearInterval(this.timer)
       }
-    // }
-    // startPoint = middlePoint;
-    // console.log(this.state.renderComponents);
   };
 
   componentWillMount() {
     clearInterval(this.timer);
   }
 
+  componentDidUpdate(prevProps, prevStates){
+    const { svgWidth, shapePoints, numSartPoint } = this.state;
+    if(prevStates.numSartPoint !== numSartPoint){
+      let startPoint = this.randomStartPoint(0, svgWidth);
+      // let allPoints = [[startPoint.x, startPoint.y]];
+      this.setState(state => ({
+          startPoint: startPoint,
+          allPoints: [
+            ...shapePoints[numSartPoint], 
+            startPoint
+          ],
+          renderComponents:[]
+        }))
+    }
+  }
+
   handleChange = name => event => {
-    this.setState({ [name]: event.target.value });
+    this.setState({ 
+      [name]: event.target.value,
+      // allPoints: [
+      //   ...this.state.allPoints,
+      //   ...this.shapePoints[this.state.numSartPoint], 
+      //   this.startPoint
+      // ],
+      // renderComponents:[] 
+    });
   };
 
   render() {
@@ -154,6 +208,7 @@ class App extends Component {
               InputLabelProps={{
                 shrink: true
               }}
+              InputProps={{ inputProps: { min: 3, max: 4 } }}
               margin="normal"
             />
             <TextField
@@ -168,6 +223,7 @@ class App extends Component {
               }}
               margin="normal"
             />
+            
           </FormGroup>
         </FormControl>
         <svg ref="svgs" width={800} height={800}>
