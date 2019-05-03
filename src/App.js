@@ -27,6 +27,9 @@ const styles = theme => ({
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,
     width: 200
+  },
+  formControl:{
+    margin:20
   }
 });
 
@@ -80,6 +83,7 @@ class App extends Component {
       colorMap: ["red","blue","black", "green"],
       renderComponents: [],
       currentVertex: 0,
+      rules: []
     };
   }
 
@@ -223,7 +227,25 @@ class App extends Component {
               }}
               margin="normal"
             />
-            
+            <FormControl className={classes.formControl}>
+              <InputLabel shrink htmlFor="rules-label-placeholder">
+                Restricted Rules
+              </InputLabel>
+              <Select
+                onChange={this.handleChange("rules")}
+                input={<Input name="rules" id="rules-label-placeholder" />}
+                displayEmpty
+                name="rules"
+                // className={classes.selectEmpty}
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                <MenuItem value={10}>Ten</MenuItem>
+                <MenuItem value={20}>Twenty</MenuItem>
+                <MenuItem value={30}>Thirty</MenuItem>
+              </Select>
+            </FormControl>
           </FormGroup>
         </FormControl>
         <svg ref="svgs" width={800} height={800}>
