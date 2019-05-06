@@ -16,8 +16,7 @@ import {
 } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import PropTypes from "prop-types";
-import shortid from  "shortid";
-
+import shortid from "shortid";
 
 const styles = theme => ({
   root: {
@@ -28,8 +27,8 @@ const styles = theme => ({
     marginRight: theme.spacing.unit,
     width: 200
   },
-  formControl:{
-    margin:20
+  formControl: {
+    margin: 20
   }
 });
 
@@ -41,8 +40,8 @@ class App extends Component {
       svgHeight: 800,
       numSartPoint: 3,
       probability: 0,
-      shapePoints:{
-        3:[
+      shapePoints: {
+        3: [
           {
             x: 400,
             y: 0
@@ -56,7 +55,7 @@ class App extends Component {
             y: 800
           }
         ],
-        4:[
+        4: [
           {
             x: 0,
             y: 0
@@ -73,17 +72,17 @@ class App extends Component {
             x: 800,
             y: 800
           }
-        ],
+        ]
       },
       startPoint: {
         x: 0,
         y: 0
       },
       allPoints: [],
-      colorMap: ["red","blue","black", "green"],
+      colorMap: ["red", "blue", "black", "green"],
       renderComponents: [],
       currentVertex: 0,
-      rules: []
+      rules: "Ban Consecutive Jumps on Same Vertex"
     };
   }
 
@@ -98,98 +97,98 @@ class App extends Component {
   };
 
   componentDidMount() {
-    const { svgWidth, shapePoints, numSartPoint } = this.state; 
+    const { svgWidth, shapePoints, numSartPoint } = this.state;
     let startPoint = this.randomStartPoint(0, svgWidth);
     // let allPoints = [[startPoint.x, startPoint.y]];
-    this.setState(state => ({
-      startPoint: startPoint,
-      allPoints: [
-        ...state.allPoints,
-        ...shapePoints[numSartPoint], 
-        startPoint
-      ]
-    }), () => {
-      // console.log(this.state.numSartPoint)
-      this.timer = setInterval(this.ChaosGame, 0.00001)
-
-    });
+    this.setState(
+      state => ({
+        startPoint: startPoint,
+        allPoints: [
+          ...state.allPoints,
+          ...shapePoints[numSartPoint],
+          startPoint
+        ]
+      }),
+      () => {
+        // console.log(this.state.numSartPoint)
+        this.timer = setInterval(this.ChaosGame, 0.00001);
+      }
+    );
     // this.timer = setInterval(this.ChaosGame, 0.00001)
-    
   }
-  CheckConsecutive = (num) =>{
-
-  }
+  CheckConsecutive = num => {};
 
   ChaosGame = () => {
     // let tempPoint = []
     // for (let i = 0; i < 30000; i++) {
     // for(let i = 0; i < 50; i++){
-      const { startPoint, currentVertex, colorMap } = this.state;
-      let nextVertex = this.getRandomPoint();
-      if (nextVertex === currentVertex){
-        return
+    const { startPoint, currentVertex, colorMap } = this.state;
+    let nextVertex = this.getRandomPoint();
+    if (this.state.numSartPoint == 4) {
+      if (nextVertex === currentVertex) {
+        return;
       }
-      const randomPoint = this.state.allPoints[nextVertex];
-      const middlePoint = {
-        x: (startPoint.x + randomPoint.x) / 2.0,
-        y: (startPoint.y + randomPoint.y) / 2.0
-      };
-      this.setState(state => ({
-        startPoint: middlePoint,
-        currentVertex: nextVertex,
-        renderComponents: [
-          ...state.renderComponents,
-          <circle
-            key={shortid.generate()}
-            cx={middlePoint.x}
-            cy={middlePoint.y}
-            r={1}
-            // width={5}
-            // height={5}
-            stroke={colorMap[nextVertex]}
-          />
-        ]
-      }));
-      if (this.state.counter > 50000){
-        clearInterval(this.timer)
-      }
+    }
+
+    const randomPoint = this.state.allPoints[nextVertex];
+    const middlePoint = {
+      x: (startPoint.x + randomPoint.x) / 2.0,
+      y: (startPoint.y + randomPoint.y) / 2.0
+    };
+    this.setState(state => ({
+      startPoint: middlePoint,
+      currentVertex: nextVertex,
+      renderComponents: [
+        ...state.renderComponents,
+        <circle
+          key={shortid.generate()}
+          cx={middlePoint.x}
+          cy={middlePoint.y}
+          r={1}
+          // width={5}
+          // height={5}
+          stroke={colorMap[nextVertex]}
+        />
+      ]
+    }));
+    if (this.state.counter > 10000) {
+      clearInterval(this.timer);
+    }
   };
 
   componentWillMount() {
     clearInterval(this.timer);
   }
 
-  componentDidUpdate(prevProps, prevStates){
+  componentDidUpdate(prevProps, prevStates) {
     const { svgWidth, shapePoints, numSartPoint } = this.state;
-    if(prevStates.numSartPoint !== numSartPoint){
+    if (prevStates.numSartPoint !== numSartPoint) {
       let startPoint = this.randomStartPoint(0, svgWidth);
       // let allPoints = [[startPoint.x, startPoint.y]];
       this.setState(state => ({
-          startPoint: startPoint,
-          allPoints: [
-            ...shapePoints[numSartPoint], 
-            startPoint
-          ],
-          renderComponents:[]
-        }))
+        startPoint: startPoint,
+        allPoints: [...shapePoints[numSartPoint], startPoint],
+        renderComponents: []
+      }));
     }
   }
 
   handleChange = name => event => {
-    this.setState({ 
-      [name]: event.target.value,
+    this.setState({
+      [name]: event.target.value
       // allPoints: [
       //   ...this.state.allPoints,
-      //   ...this.shapePoints[this.state.numSartPoint], 
+      //   ...this.shapePoints[this.state.numSartPoint],
       //   this.startPoint
       // ],
-      // renderComponents:[] 
+      // renderComponents:[]
     });
   };
 
   render() {
     // console.log(this.state.renderComponents);
     const { classes } = this.props;
+    const { numSartPoint } = this.state;
     return (
       <div className="App">
         <AppBar position="static" color="default" className={classes.root}>
@@ -205,7 +204,7 @@ class App extends Component {
             <TextField
               id="standard-number"
               label="Number of Initial Points"
-              value={this.state.numSartPoint}
+              value={numSartPoint}
               onChange={this.handleChange("numSartPoint")}
               type="number"
               className={classes.textField}
@@ -215,37 +214,40 @@ class App extends Component {
               InputProps={{ inputProps: { min: 3, max: 4 } }}
               margin="normal"
             />
-            <TextField
-              id="probability"
-              label="Probability"
-              value={this.state.probability}
-              onChange={this.handleChange("probability")}
-              type="number"
-              className={classes.textField}
-              InputLabelProps={{
-                shrink: true
-              }}
-              margin="normal"
-            />
-            <FormControl className={classes.formControl}>
-              <InputLabel shrink htmlFor="rules-label-placeholder">
-                Restricted Rules
-              </InputLabel>
-              <Select
-                onChange={this.handleChange("rules")}
-                input={<Input name="rules" id="rules-label-placeholder" />}
-                displayEmpty
-                name="rules"
-                // className={classes.selectEmpty}
-              >
-                <MenuItem value="">
-                  <em>None</em>
-                </MenuItem>
-                <MenuItem value={10}>Ten</MenuItem>
-                <MenuItem value={20}>Twenty</MenuItem>
-                <MenuItem value={30}>Thirty</MenuItem>
-              </Select>
-            </FormControl>
+            {/* {[...Array(numSartPoint)].map(index => (
+              <TextField
+                id={"probability" + index}
+                key={shortid.generate()}
+                label="Probability"
+                value={this.state.probability}
+                onChange={this.handleChange("probability")}
+                type="number"
+                className={classes.textField}
+                InputLabelProps={{
+                  shrink: true
+                }}
+                margin="normal"
+              />
+            ))} */}
+
+            {numSartPoint == 4 ? (
+              <FormControl className={classes.formControl}>
+                <InputLabel shrink htmlFor="rules-label-placeholder">
+                  Restricted Rules
+                </InputLabel>
+                <Select
+                  onChange={this.handleChange("rules")}
+                  input={<Input name="rules" id="rules-label-placeholder" />}
+                  // name="rules"
+                  value={this.state.rules}
+                  // className={classes.selectEmpty}
+                >
+                  <MenuItem value="Ban Consecutive Jumps on Same Vertex">
+                    <em>Ban Consecutive Jumps on Same Vertex</em>
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            ) : null}
           </FormGroup>
         </FormControl>
         <svg ref="svgs" width={800} height={800}>
